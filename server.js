@@ -2,6 +2,9 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 
+// Helper method for generating unique ids
+const uuid = require('./helpers/uuid');
+
 const PORT = 3001;
 const notesData = require('./db/db.json');
 
@@ -31,10 +34,11 @@ app.get('/api/notes', (req, res) => {
 app.post('/api/notes', (req, res) => {
     // Logging request to terminal
     console.info(`${req.method} request received to add a note`);
-
+    // Prepare response object
     let response;
-    const { title, text } = req.body;
 
+    const { title, text } = req.body;
+    // Return error responses if title or text are missing
     if (!title) {
         response = { success: false, reason: "Missing/Empty title" };
         return res.status(400).json(response);
@@ -43,11 +47,13 @@ app.post('/api/notes', (req, res) => {
         return res.status(400).json(response);
     }
 
+    // create new notes object
     const newNote = {
+        id: uuid(),
         title,
         text
     }
-    
+    // Get existing notes from JSON file
     fs.readFile(`./db/db.json`, (err, data) => {
         if (err) console.error(err);
         const parsedData = JSON.parse(data);
@@ -67,9 +73,6 @@ app.post('/api/notes', (req, res) => {
     console.log(response);
     res.status(201).json(response);
 });
-
-// TODO: A /api/notes GET endpoint that returns notes as a json
-// TODO: A /api/notes POST endpoint that adds a note from a json
 
 app.listen(PORT, () => {
     console.log(`Example app listening at http://localhost:${PORT}`);
