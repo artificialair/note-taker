@@ -47,19 +47,21 @@ app.post('/api/notes', (req, res) => {
         title,
         text
     }
-    const noteString = JSON.stringify(newNote);
-
-    fs.writeFile(`./db/db.json`, noteString, (err) =>
-      err
-        ? console.error(err)
-        : console.log(
-            `Note ${newNote.title} has been written to JSON file`
-          )
-    );
+    
+    fs.readFile(`./db/db.json`, (err, data) => {
+        if (err) console.error(err);
+        const parsedData = JSON.parse(data);
+        parsedData.push(newNote)
+        fs.writeFile(`./db/db.json`, JSON.stringify(parsedData), (err) => {
+            err
+              ? console.error(err)
+              : console.log(`Note ${newNote.title} has been written to JSON file`)
+        });
+    });
 
     response = {
-        success: true,
-        body: newNote,
+      success: true,
+      body: newNote,
     };
   
     console.log(response);
