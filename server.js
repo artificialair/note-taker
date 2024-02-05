@@ -28,6 +28,44 @@ app.get('/api/notes', (req, res) => {
     return res.status(200).json(notesData);
 });
 
+app.post('/api/notes', (req, res) => {
+    // Logging request to terminal
+    console.info(`${req.method} request received to add a note`);
+
+    let response;
+    const { title, text } = req.body;
+
+    if (!title) {
+        response = { success: false, reason: "Missing/Empty title" };
+        return res.status(400).json(response);
+    } else if (!text) {
+        response = { success: false, reason: "Missing/Empty text" };
+        return res.status(400).json(response);
+    }
+
+    const newNote = {
+        title,
+        text
+    }
+    const noteString = JSON.stringify(newNote);
+
+    fs.writeFile(`./db/db.json`, noteString, (err) =>
+      err
+        ? console.error(err)
+        : console.log(
+            `Note ${newNote.title} has been written to JSON file`
+          )
+    );
+
+    response = {
+        success: true,
+        body: newNote,
+    };
+  
+    console.log(response);
+    res.status(201).json(response);
+});
+
 // TODO: A /api/notes GET endpoint that returns notes as a json
 // TODO: A /api/notes POST endpoint that adds a note from a json
 
