@@ -78,10 +78,12 @@ app.post('/api/notes', (req, res) => {
 app.delete('/api/notes/:id', (req, res) => {
     // Logging request to terminal
     console.info(`${req.method} request received to delete a note`);
+
     const idToDelete = req.params.id;
     fs.readFile(`./db/db.json`, (err, data) => {
         if (err) console.error(err);
         const parsedData = JSON.parse(data);
+        // Iterate through notes and delete the first note that matches the requested ID
         for (const [index, note] of parsedData.entries()) {
             if (note.id === idToDelete) {
                 parsedData.splice(index, 1);
@@ -90,10 +92,11 @@ app.delete('/api/notes/:id', (req, res) => {
                       ? console.error(err)
                       : console.log(`Note ${idToDelete} has been deleted from JSON file`)
                 });
-                return res.status(200).json({ success: true })
+                return res.status(204)
             }
         }
-        return res.status(404).json(`Note ${req.params.id} not found.`)
+        // If a note was not deleted, return not found error
+        return res.status(404).json({ success: false, reason: `Note ${req.params.id} not found.`})
     });
 });
 
