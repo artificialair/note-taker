@@ -6,7 +6,6 @@ const fs = require('fs');
 const uuid = require('./helpers/uuid');
 
 const PORT = 3001;
-const notesData = require('./db/db.json');
 
 const app = express();
 
@@ -28,7 +27,10 @@ app.get('/api/notes', (req, res) => {
     console.info(`${req.method} request received to get notes`);
 
     // Send all notes to the client
-    return res.status(200).json(notesData);
+    fs.readFile(`./db/db.json`, (err, data) => {
+        if (err) console.error(err);
+        return res.status(200).json(JSON.parse(data));
+    });
 });
 
 app.post('/api/notes', (req, res) => {
@@ -70,7 +72,6 @@ app.post('/api/notes', (req, res) => {
       body: newNote,
     };
   
-    console.log(response);
     res.status(201).json(response);
 });
 
